@@ -11,6 +11,7 @@ import { Map, Marker } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
 import { MapPin } from "lucide-react";
+import AddActivityDropdown from "@/components/add-activity-dropdown";
 
 export default function EditItinerary() {
     const { id } = useParams();
@@ -107,19 +108,22 @@ export default function EditItinerary() {
                                         <div className="relative grid grid-cols-2 justify-between">
                                             <h3 className="text-2xl">{format(date, 'MMM d, yyyy')}</h3>
                                             <div className="flex justify-end w-full">
-                                                <Button variant="outline" className="px-2 py-1 text-sm w-20">Add Item</Button>
+                                               <AddActivityDropdown/>
                                             </div>
                                         </div>
                                     </CardHeader>
                                     <Separator className="my-2" />
                                     <ScrollArea className="h-52">
                                         {activities.length > 0 ? (
-                                            activities.map((activity) => (
-                                                <Card key={activity.id} className="p-5 m-2 cursor-pointer" onClick={() => handleActivityClick(formattedDate, activity)}>
-                                                    <h4>{activity.name}</h4>
-                                                    <p>{activity.location}</p>
-                                                </Card>
-                                            ))
+                                            activities.map((activity) => {
+                                                const isSelected = selectedActivity && selectedActivity.id === activity.id;
+                                                return (
+                                                    <Card key={activity.id} className={`p-5 m-2 cursor-pointer ${isSelected ? "bg-gray-700" : ""}`} onClick={() => handleActivityClick(formattedDate, activity)}>
+                                                        <h4 className="font-bold">{activity.name}</h4>
+                                                        <p>{activity.location}</p>
+                                                    </Card>
+                                                )
+                                            })
                                         ) : (
                                             <p>No activities planned.</p>
                                         )}
@@ -127,12 +131,13 @@ export default function EditItinerary() {
                                 </div>
                                 <div className="col-span-1">
                                     <Map
-                                        initialViewState={viewState}
+                                        {...viewState}
+                                        onMove={evt => setViewStates(prev => ({ ...prev, [formattedDate]: evt.viewState }))}
                                         mapLib={maplibregl}
                                         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json">
                                         {selectedActivity && (
                                             <Marker longitude={selectedActivity.long} latitude={selectedActivity.lat} anchor="bottom" color="red">
-                                                <MapPin color="red" />
+                                                {/*<MapPin color="red" />*/}
                                             </Marker>
                                         )}
                                     </Map>
