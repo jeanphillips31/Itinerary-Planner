@@ -12,7 +12,7 @@ export default function AddActivityDropdown() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="px-2 py-1 text-sm w-20">Add Item</Button>
+
             </DropdownMenuTrigger>
             <DropdownMenuContent>
                 <AddFlightsDialog/>

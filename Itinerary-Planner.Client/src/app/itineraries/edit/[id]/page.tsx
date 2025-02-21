@@ -4,14 +4,16 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { eachDayOfInterval, format, parseISO } from "date-fns";
 import { Card, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { Map, Marker } from "react-map-gl/maplibre";
+import { Map, Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
 import { MapPin } from "lucide-react";
 import AddActivityDropdown from "@/components/add-activity-dropdown";
+import {useTheme} from "next-themes";
+import {Button} from "@/components/ui/button";
+import AddItemDialog from "@/components/add-item-dialogue";
 
 export default function EditItinerary() {
     const { id } = useParams();
@@ -19,12 +21,14 @@ export default function EditItinerary() {
     const [selectedActivities, setSelectedActivities] = useState({});
     const [viewStates, setViewStates] = useState({});
 
+    const {theme} = useTheme()
+
     const handleActivityClick = (date, activity) => {
         setSelectedActivities((prev) => ({ ...prev, [date]: activity }));
         setViewStates(prev => ({ ...prev, [date]: {
                 latitude: activity.lat,
                 longitude: activity.long,
-                zoom: 14
+                zoom: 10
             } }));
     };
 
@@ -108,7 +112,7 @@ export default function EditItinerary() {
                                         <div className="relative grid grid-cols-2 justify-between">
                                             <h3 className="text-2xl">{format(date, 'MMM d, yyyy')}</h3>
                                             <div className="flex justify-end w-full">
-                                               <AddActivityDropdown/>
+                                                <AddItemDialog/>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -118,7 +122,7 @@ export default function EditItinerary() {
                                             activities.map((activity) => {
                                                 const isSelected = selectedActivity && selectedActivity.id === activity.id;
                                                 return (
-                                                    <Card key={activity.id} className={`p-5 m-2 cursor-pointer ${isSelected ? "bg-gray-700" : ""}`} onClick={() => handleActivityClick(formattedDate, activity)}>
+                                                    <Card key={"activity"+activity.id} className={`p-5 m-2 cursor-pointer ${isSelected ? `${theme === "light" ? "bg-gray-200" : "bg-gray-700" }` : ""}`} onClick={() => handleActivityClick(formattedDate, activity)}>
                                                         <h4 className="font-bold">{activity.name}</h4>
                                                         <p>{activity.location}</p>
                                                     </Card>
@@ -131,15 +135,24 @@ export default function EditItinerary() {
                                 </div>
                                 <div className="col-span-1">
                                     <Map
+                                        reuseMaps
                                         {...viewState}
                                         onMove={evt => setViewStates(prev => ({ ...prev, [formattedDate]: evt.viewState }))}
                                         mapLib={maplibregl}
                                         mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json">
-                                        {selectedActivity && (
-                                            <Marker longitude={selectedActivity.long} latitude={selectedActivity.lat} anchor="bottom" color="red">
-                                                {/*<MapPin color="red" />*/}
-                                            </Marker>
-                                        )}
+                                        {
+                                            activities.map((activity) => {
+                                                return(
+                                                    <div key={"map"+activity.id}>
+                                                        <Marker longitude={activity.long} latitude={activity.lat} color="red">
+                                                        </Marker>
+                                                        <Popup longitude={activity.long} latitude={activity.lat} anchor={"top"} closeButton={false}>
+                                                            <h4 className="font-bold">{activity.name}</h4>
+                                                        </Popup>
+                                                    </div>
+                                                )
+                                            })
+                                        }
                                     </Map>
                                 </div>
                             </div>
