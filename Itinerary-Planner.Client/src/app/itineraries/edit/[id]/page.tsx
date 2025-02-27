@@ -9,10 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Map, Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
-import { MapPin } from "lucide-react";
-import AddActivityDropdown from "@/components/add-activity-dropdown";
 import {useTheme} from "next-themes";
-import {Button} from "@/components/ui/button";
 import AddItemDialog from "@/components/add-item-dialogue";
 
 export default function EditItinerary() {
@@ -124,6 +121,7 @@ export default function EditItinerary() {
                                                 return (
                                                     <Card key={"activity"+activity.id} className={`p-5 m-2 cursor-pointer ${isSelected ? `${theme === "light" ? "bg-gray-200" : "bg-gray-700" }` : ""}`} onClick={() => handleActivityClick(formattedDate, activity)}>
                                                         <h4 className="font-bold">{activity.name}</h4>
+                                                        <p className="text-sm">{format(activity.startTime, "HH:mm") + "-" + format(activity.endTime, "HH:mm")}</p>
                                                         <p>{activity.location}</p>
                                                     </Card>
                                                 )
@@ -147,7 +145,7 @@ export default function EditItinerary() {
                                                         <Marker longitude={activity.long} latitude={activity.lat} color="red">
                                                         </Marker>
                                                         <Popup longitude={activity.long} latitude={activity.lat} anchor={"top"} closeButton={false}>
-                                                            <h4 className="font-bold">{activity.name}</h4>
+                                                            <h4 className={`font-bold text-black`}>{activity.name}</h4>
                                                         </Popup>
                                                     </div>
                                                 )
