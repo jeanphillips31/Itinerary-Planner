@@ -27,7 +27,7 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
     /// <summary>
     ///  Adds new activities to the database
     /// </summary>
-    public async Task AddActivitiesAsync(IEnumerable<ActivityDto> activities)
+    public async Task AddActivitiesAsync(IEnumerable<ActivityDto> activities, int itineraryId)
     {
         var activitiesModel = activities.Select(a => new Activity
         {
@@ -38,7 +38,8 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
             StartTime = a.StartTime,
             Latitude = a.Latitude,
             Longitude = a.Longitude,
-            Location = a.Location
+            Location = a.Location,
+            ItineraryId = itineraryId
         });
 
         await activityRepository.AddActivitiesAsync(activitiesModel);

@@ -7,7 +7,7 @@ public class Itinerary
     public string? ImageUrl { get; set; }
     public DateTimeOffset StartDate { get; set; }
     public DateTimeOffset EndDate { get; set; }
-    public bool Active { get; set; }
+    public bool Active { get; set; } = true;
     
     public required int UserId { get; set; }
     public User User { get; set; } = null!;

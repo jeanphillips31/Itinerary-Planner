@@ -10,8 +10,8 @@ public class Activity
     public float Longitude { get; set; }
     public DateTimeOffset StartTime { get; set; }
     public DateTimeOffset EndTime { get; set; }
-    public bool Active { get; set; }
+    public bool Active { get; set; } = true;
     
-    public int? ItineraryId { get; set; }
-    public Itinerary? Itinerary { get; set; }
+    public required int ItineraryId { get; set; }
+    public Itinerary Itinerary { get; set; } = null!;
 }

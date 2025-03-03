@@ -33,7 +33,7 @@ public class ItineraryController(IItineraryService itineraryService, IActivitySe
     public async Task<IActionResult> AddItinerary(ItineraryDto itinerary)
     {
         var itineraryId = await itineraryService.AddItineraryAsync(itinerary);
-        await activityService.AddActivitiesAsync(itinerary.Activities);
+        await activityService.AddActivitiesAsync(itinerary.Activities, itineraryId);
         return CreatedAtAction(nameof(AddItinerary), new {id = itineraryId}, itinerary);
     }
 
