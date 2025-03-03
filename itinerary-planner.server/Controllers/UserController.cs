@@ -1,6 +1,10 @@
-﻿namespace itinerary_planner.server.Controllers;
+﻿using Microsoft.AspNetCore.Mvc;
 
-public class UserController
+namespace itinerary_planner.server.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
 {
     
 }

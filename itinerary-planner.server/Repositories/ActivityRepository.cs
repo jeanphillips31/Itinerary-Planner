@@ -15,11 +15,22 @@ public class ActivityRepository(ApplicationDbContext context) : IActivityReposit
     }
 
     /// <summary>
+    ///  Gets an activity by the ID
+    /// </summary>
+    public async Task<Activity?> GetActivityByIdAsync(int activityId)
+    {
+        return await context.Activities.FirstOrDefaultAsync(a => a.Id == activityId);
+    }
+
+    /// <summary>
     ///  Adds a new activity to the database
     /// </summary>
-    public async Task AddActivityAsync(Activity activity)
+    public async Task AddActivitiesAsync(IEnumerable<Activity> activities)
     {
-        await context.Activities.AddAsync(activity);
+        foreach (var activity in activities)
+        {
+            await context.Activities.AddAsync(activity);
+        }
         await context.SaveChangesAsync();
     }
 

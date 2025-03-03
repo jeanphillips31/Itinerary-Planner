@@ -4,7 +4,7 @@ using itinerary_planner.server.Repositories;
 
 namespace itinerary_planner.server.Services;
 
-public class ItineraryService(IItineraryRepository itineraryRepository): IItineraryService
+public class ItineraryService(IItineraryRepository itineraryRepository) : IItineraryService
 {
     /// <summary>
     ///  Retrieves all Itineraries as a DTO
@@ -16,8 +16,8 @@ public class ItineraryService(IItineraryRepository itineraryRepository): IItiner
         return itineraries.Select(i => new ItineraryDto
         {
             Id = i.Id,
-            Title = i.Title, 
-            ImageUrl = i.ImageUrl, 
+            Title = i.Title,
+            ImageUrl = i.ImageUrl,
             StartDate = i.StartDate,
             EndDate = i.EndDate,
             Activities = i.Activities.Select(a => new ActivityDto
@@ -45,11 +45,12 @@ public class ItineraryService(IItineraryRepository itineraryRepository): IItiner
         {
             throw new ArgumentException($"No itinerary found with id: {id}");
         }
+
         return new ItineraryDto
         {
             Id = itinerary.Id,
-            Title = itinerary.Title, 
-            ImageUrl = itinerary.ImageUrl, 
+            Title = itinerary.Title,
+            ImageUrl = itinerary.ImageUrl,
             StartDate = itinerary.StartDate,
             EndDate = itinerary.EndDate,
             Activities = itinerary.Activities.Select(a => new ActivityDto
@@ -79,7 +80,7 @@ public class ItineraryService(IItineraryRepository itineraryRepository): IItiner
             Title = itineraryDto.Title,
             UserId = itineraryDto.UserId
         };
-        
+
         await itineraryRepository.AddItineraryAsync(itinerary);
 
         return itinerary.Id;
@@ -96,7 +97,7 @@ public class ItineraryService(IItineraryRepository itineraryRepository): IItiner
         {
             throw new ArgumentException($"No itinerary found with id: {id}");
         }
-        
+
         itinerary.Title = itineraryDto.Title;
         itinerary.ImageUrl = itineraryDto.ImageUrl;
         itinerary.StartDate = itineraryDto.StartDate;
@@ -114,6 +115,7 @@ public class ItineraryService(IItineraryRepository itineraryRepository): IItiner
         {
             throw new ArgumentException($"No itinerary found with id: {id}");
         }
+
         await itineraryRepository.DeleteItineraryAsync(id);
     }
 }
