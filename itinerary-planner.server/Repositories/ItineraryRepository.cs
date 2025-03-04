@@ -22,7 +22,9 @@ public class ItineraryRepository(ApplicationDbContext context, IActivityReposito
     /// </summary>
     public async Task<Itinerary?> GetItineraryByIdAsync(int id)
     {
-        return await context.Itineraries.FindAsync(id);
+        return await context.Itineraries
+            .Include(i => i.Activities)
+            .FirstOrDefaultAsync(i => i.Active);
     }
 
     /// <summary>

@@ -1,69 +1,72 @@
-﻿using itinerary_planner.server.DTOs;
+﻿using Carter;
+using itinerary_planner.server.DTOs;
 using itinerary_planner.server.Services;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace itinerary_planner.server.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ItineraryController(IItineraryService itineraryService, IActivityService activityService, ILogger<ItineraryController> logger) : ControllerBase
+public class ItineraryModule : ICarterModule
 {
-    [HttpGet]
-    public async Task<IActionResult> GetItineraries()
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        var itineraries = await itineraryService.GetAllItinerariesAsync();
-        return Ok(itineraries);
+        app.MapGet("/itineraries", GetItineraries);
+        app.MapGet("/itinerary/{itineraryId:int}", GetItinerary);
+        app.MapPost("/add", AddItinerary);
+        app.MapPut("/update/{itineraryId:int}", UpdateItinerary);
+        app.MapDelete("/delete/{itineraryId:int}", DeleteItinerary);
     }
 
-    [HttpGet("{itineraryId:int}")]
-    public async Task<IActionResult> GetItinerary(int itineraryId)
+    private async Task<Results<Ok<IEnumerable<ItineraryDto>>, BadRequest>> GetItineraries(IItineraryService itineraryService)
+    {
+        var itineraries = await itineraryService.GetAllItinerariesAsync();
+        return TypedResults.Ok(itineraries);
+    }
+
+    private async Task<Results<Ok<ItineraryDto>, NotFound>> GetItinerary(IItineraryService itineraryService, int itineraryId)
     {
         try
         {
             var itinerary = await itineraryService.GetItineraryByIdAsync(itineraryId);
-            return Ok(itinerary);
+            return TypedResults.Ok(itinerary);
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
     }
-
-    [HttpPost]
-    public async Task<IActionResult> AddItinerary(ItineraryDto itinerary)
+    
+    private async Task<Results<Created<int>, BadRequest>> AddItinerary(IItineraryService itineraryService,IActivityService activityService, ItineraryDto itinerary)
     {
         var itineraryId = await itineraryService.AddItineraryAsync(itinerary);
         await activityService.AddActivitiesAsync(itinerary.Activities, itineraryId);
-        return CreatedAtAction(nameof(AddItinerary), new {id = itineraryId}, itinerary);
+        return TypedResults.Created(nameof(AddItinerary), itineraryId);
     }
-
-    [HttpPut("{itineraryId:int}")]
-    public async Task<IActionResult> UpdateItinerary(int itineraryId, ItineraryDto itinerary)
+    
+    private async Task<Results<Ok, NotFound, NoContent>> UpdateItinerary(IItineraryService itineraryService, IActivityService activityService, int itineraryId, ItineraryDto itinerary)
     {
         try
         {
             await itineraryService.UpdateItineraryAsync(itineraryId, itinerary);
             await activityService.UpdateActivitiesAsync(itinerary.Activities);
-            return NoContent();
+            return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
     }
-
-    [HttpDelete("{itineraryId:int}")]
-    public async Task<IActionResult> DeleteItinerary(int itineraryId)
+    
+    private async Task<Results<Ok, NotFound, NoContent>> DeleteItinerary(IItineraryService itineraryService, IActivityService activityService, int itineraryId)
     {
         try
         {
             await itineraryService.DeleteItineraryAsync(itineraryId);
             await activityService.DeleteActivitiesByItineraryIdAsync(itineraryId);
-            return NoContent();
+            return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)
         {
-            return NotFound();
+            return TypedResults.NotFound();
         }
     }
 }

@@ -3,45 +3,31 @@
 import Itinerary from "@/components/itinerary";
 import CreateItineraryDialog from "@/components/create-itinerary-dialog";
 import { useEffect, useState } from 'react';
-import {now} from "next-auth/client/_utils";
-
-type CardData = {
-    id: number
-    title: string
-    imageUrl: string
-    startDate: Date
-    endDate: Date
-    activities: Record<string, Activity[]>; // Keyed by date
-}
-
-type Activity = {
-    id: number
-    name: string
-    location: string
-    lat: number
-    long: number
-}
+import {createApiClient } from "../../api/client";
+import {ItineraryDto} from "../../api/dtos";
 
 
 export default function Home() {
-    const [upcomingTrips, setUpcomingTrips] = useState<CardData[]>([]);
-    const [pastTrips, setPastTrips] = useState<CardData[]>([]);
+
+    let baseUrl = ""
+    if (process.env.NEXT_PUBLIC_BASEURL) {
+        baseUrl = process.env.NEXT_PUBLIC_BASEURL;
+    }
+
+    const client = createApiClient(baseUrl)
+
+
+    const [upcomingTrips, setUpcomingTrips] = useState<ItineraryDto[]>([]);
+    const [pastTrips, setPastTrips] = useState<ItineraryDto[]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:3010/itineraries")
-                const data = await response.json();
-                const parsedData = data.map((item:any) => ({
-                    ...item,
-                    startDate: new Date(item.startDate),
-                    endDate: new Date(item.endDate),
-                }));
-
+                const response: ItineraryDto[] = await client.getItineraries();
                 const now = new Date();
 
-                setUpcomingTrips(parsedData.filter(trip => now <= trip.endDate));
-                setPastTrips(parsedData.filter(trip => now > trip.endDate));
+                setUpcomingTrips(response.filter(trip => now <= new Date(trip.endDate || "")));
+                setPastTrips(response.filter(trip => now > new Date(trip.endDate || "")));
 
             } catch(error) {
                 console.log(error)

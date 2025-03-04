@@ -35,6 +35,8 @@ appsettings.Development.json
 *.tsbuildinfo
 next-env.d.ts
 
+**/input/
+
 
 # Common IntelliJ Platform excludes
 
