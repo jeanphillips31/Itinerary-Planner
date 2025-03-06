@@ -10,6 +10,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import {Calendar} from "lucide-react";
 import {addDays, format} from "date-fns"
 import { DateRange } from "react-day-picker"
+import {client, ItineraryDto} from "../../api/api";
 
 export default function CreateItineraryDialog() {
     const [isOpen, setIsOpen] = useState(false)
@@ -32,9 +33,17 @@ export default function CreateItineraryDialog() {
     }
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
+        //e.preventDefault()
         //handle form submission
-        console.log({selectedImage, dateRange})
+        let itinerary: ItineraryDto = {
+            title: itineraryName,
+            imageUrl: selectedImage,
+            startDate: dateRange?.from?.toDateString(),
+            endDate: dateRange?.to?.toDateString(),
+            userId: 1
+        }
+        client.postAdd(itinerary)
+            .catch(error => console.log(error))
         setItineraryName("")
         setSelectedImage(null)
         setDateRange(undefined)

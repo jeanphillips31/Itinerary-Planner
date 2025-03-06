@@ -3,7 +3,7 @@ import Image from "next/image";
 import {format} from "date-fns";
 import {Card, CardContent, CardHeader} from "@/components/ui/card";
 import Link from "next/link";
-import {ItineraryDto} from "../../api/dtos";
+import {ItineraryDto} from "../../api/api";
 
 export default function Itinerary({ props }: { props: ItineraryDto }) {
     return (

@@ -3,18 +3,10 @@
 import Itinerary from "@/components/itinerary";
 import CreateItineraryDialog from "@/components/create-itinerary-dialog";
 import { useEffect, useState } from 'react';
-import {createApiClient } from "../../api/client";
-import {ItineraryDto} from "../../api/dtos";
+import {ItineraryDto, client} from "../../api/api";
 
 
 export default function Home() {
-
-    let baseUrl = ""
-    if (process.env.NEXT_PUBLIC_BASEURL) {
-        baseUrl = process.env.NEXT_PUBLIC_BASEURL;
-    }
-
-    const client = createApiClient(baseUrl)
 
 
     const [upcomingTrips, setUpcomingTrips] = useState<ItineraryDto[]>([]);

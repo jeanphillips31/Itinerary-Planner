@@ -38,7 +38,8 @@ public class ItineraryModule : ICarterModule
     private async Task<Results<Created<int>, BadRequest>> AddItinerary(IItineraryService itineraryService,IActivityService activityService, ItineraryDto itinerary)
     {
         var itineraryId = await itineraryService.AddItineraryAsync(itinerary);
-        await activityService.AddActivitiesAsync(itinerary.Activities, itineraryId);
+        //await activityService.AddActivitiesAsync(itinerary.Activities, itineraryId);
+        Console.WriteLine($"Added itinerary {itineraryId}");
         return TypedResults.Created(nameof(AddItinerary), itineraryId);
     }
     
@@ -47,7 +48,7 @@ public class ItineraryModule : ICarterModule
         try
         {
             await itineraryService.UpdateItineraryAsync(itineraryId, itinerary);
-            await activityService.UpdateActivitiesAsync(itinerary.Activities);
+            await activityService.UpdateActivitiesAsync(itinerary.Activities, itineraryId);
             return TypedResults.NoContent();
         }
         catch (KeyNotFoundException)

@@ -11,7 +11,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import maplibregl from "maplibre-gl";
 import {useTheme} from "next-themes";
 import AddItemDialog from "@/components/add-item-dialogue";
-import {ActivityDto, ItineraryDto} from "../../../../../api/dtos";
+import {ActivityDto, ItineraryDto} from "../../../../../api/api";
 import {createApiClient} from "../../../../../api/client";
 
 export default function EditItinerary() {

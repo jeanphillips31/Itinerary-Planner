@@ -23,33 +23,14 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
             Location = a.Location
         });
     }
+    
 
     /// <summary>
-    ///  Adds new activities to the database
+    ///  Updates existing activities, if it doesn't exist then add it
     /// </summary>
-    public async Task AddActivitiesAsync(IEnumerable<ActivityDto> activities, int itineraryId)
+    public async Task UpdateActivitiesAsync(IEnumerable<ActivityDto> activities, int itineraryId)
     {
-        var activitiesModel = activities.Select(a => new Activity
-        {
-            Id = a.Id,
-            Name = a.Name,
-            Date = a.Date,
-            EndTime = a.EndTime,
-            StartTime = a.StartTime,
-            Latitude = a.Latitude,
-            Longitude = a.Longitude,
-            Location = a.Location,
-            ItineraryId = itineraryId
-        });
-
-        await activityRepository.AddActivitiesAsync(activitiesModel);
-    }
-
-    /// <summary>
-    ///  Updates existing activities
-    /// </summary>
-    public async Task UpdateActivitiesAsync(IEnumerable<ActivityDto> activities)
-    {
+        var activitiesToAdd = new List<Activity>();
         foreach (var activityDto in activities)
         {
             var activity = await activityRepository.GetActivityByIdAsync(activityDto.Id);
@@ -67,8 +48,25 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
             }
             else
             {
-                Console.WriteLine($"No activity found with id: {activityDto.Id}");
+                var activityModel = new Activity
+                {
+                    Id = activityDto.Id,
+                    Name = activityDto.Name,
+                    Date = activityDto.Date,
+                    EndTime = activityDto.EndTime,
+                    StartTime = activityDto.StartTime,
+                    Latitude = activityDto.Latitude,
+                    Longitude = activityDto.Longitude,
+                    Location = activityDto.Location,
+                    ItineraryId = itineraryId
+                };
+                activitiesToAdd.Add(activityModel);
             }
+        }
+
+        if (activitiesToAdd.Count != 0)
+        {
+            await activityRepository.AddActivitiesAsync(activitiesToAdd);
         }
     }
 
