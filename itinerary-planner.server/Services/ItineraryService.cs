@@ -6,18 +6,19 @@ namespace itinerary_planner.server.Services;
 
 public class ItineraryService(IItineraryRepository itineraryRepository) : IItineraryService
 {
+    const string baseUrl = "https://localhost:7063/";
     /// <summary>
     ///  Retrieves all Itineraries as a DTO
     /// </summary>
     public async Task<IEnumerable<ItineraryDto>> GetAllItinerariesAsync()
     {
         var itineraries = await itineraryRepository.GetAllItinerariesAsync();
-
+        
         return itineraries.Select(i => new ItineraryDto
         {
             Id = i.Id,
             Title = i.Title,
-            ImageUrl = i.ImageUrl,
+            ImageUrl = $"{baseUrl}{i.ImageUrl}",
             StartDate = i.StartDate,
             EndDate = i.EndDate,
             Activities = i.Activities.Select(a => new ActivityDto
@@ -50,7 +51,7 @@ public class ItineraryService(IItineraryRepository itineraryRepository) : IItine
         {
             Id = itinerary.Id,
             Title = itinerary.Title,
-            ImageUrl = itinerary.ImageUrl,
+            ImageUrl = $"{baseUrl}{itinerary.ImageUrl}",
             StartDate = itinerary.StartDate,
             EndDate = itinerary.EndDate,
             Activities = itinerary.Activities.Select(a => new ActivityDto
@@ -74,11 +75,11 @@ public class ItineraryService(IItineraryRepository itineraryRepository) : IItine
     {
         var itinerary = new Itinerary
         {
-            ImageUrl = itineraryDto.ImageUrl,
             StartDate = itineraryDto.StartDate,
             EndDate = itineraryDto.EndDate,
             Title = itineraryDto.Title,
-            UserId = itineraryDto.UserId
+            UserId = itineraryDto.UserId,
+            ImageUrl = itineraryDto.ImageUrl
         };
 
         await itineraryRepository.AddItineraryAsync(itinerary);
@@ -98,8 +99,20 @@ public class ItineraryService(IItineraryRepository itineraryRepository) : IItine
             throw new ArgumentException($"No itinerary found with id: {id}");
         }
 
+        if (itineraryDto.Image != null)
+        {
+            var uploadResult = await UploadImageAsync(itineraryDto.Image);
+            if (uploadResult.isSuccess)
+            {
+                itinerary.ImageUrl = uploadResult.url;
+            }
+            else
+            {
+                throw new Exception("Image upload failed.");
+            }
+        }
+        
         itinerary.Title = itineraryDto.Title;
-        itinerary.ImageUrl = itineraryDto.ImageUrl;
         itinerary.StartDate = itineraryDto.StartDate;
         itinerary.EndDate = itineraryDto.EndDate;
         await itineraryRepository.UpdateItineraryAsync(itinerary);
@@ -117,5 +130,51 @@ public class ItineraryService(IItineraryRepository itineraryRepository) : IItine
         }
 
         await itineraryRepository.DeleteItineraryAsync(id);
+    }
+
+    /// <summary>
+    ///  Upload the image to the server
+    /// </summary>
+    public async Task<(bool isSuccess, string url)> UploadImageAsync(IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+                return (false, string.Empty);
+
+            var fileName = Path.GetFileName(file.FileName);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+
+
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            // Generate a unique file name
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + fileName;
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            // Save the file to the server
+            await using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var imageUrl = $"uploads/{uniqueFileName}";
+            return (true, $"{baseUrl}{imageUrl}");
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
+
+    /// <summary>
+    ///  Updates the itineraries image url
+    /// </summary>
+    public async Task UpdateItineraryImageAsync(int id, string imageUrl)
+    {
+        await itineraryRepository.UpdateItineraryImageAsync(id, imageUrl);
     }
 }

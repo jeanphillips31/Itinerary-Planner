@@ -9,4 +9,6 @@ public interface IItineraryService
     Task<int> AddItineraryAsync(ItineraryDto itineraryDto);
     Task UpdateItineraryAsync(int id, ItineraryDto itineraryDto);
     Task DeleteItineraryAsync(int id);
+    Task<(bool isSuccess, string url)> UploadImageAsync(IFormFile file);
+    Task UpdateItineraryImageAsync(int id, string imageUrl);
 }

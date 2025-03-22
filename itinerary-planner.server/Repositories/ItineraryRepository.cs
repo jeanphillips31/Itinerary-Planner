@@ -24,7 +24,7 @@ public class ItineraryRepository(ApplicationDbContext context, IActivityReposito
     {
         return await context.Itineraries
             .Include(i => i.Activities)
-            .FirstOrDefaultAsync(i => i.Active);
+            .FirstOrDefaultAsync(i => i.Active && i.Id == id);
     }
 
     /// <summary>
@@ -59,6 +59,22 @@ public class ItineraryRepository(ApplicationDbContext context, IActivityReposito
             itinerary.Active = false;
 
             await activityRepository.DeleteActivitiesByItineraryIdAsync(id);
+            await context.SaveChangesAsync();
+        }
+    }
+
+    /// <summary>
+    ///  Updates the itineraries image url in the database
+    /// </summary>
+    public async Task UpdateItineraryImageAsync(int id, string imageUrl)
+    {
+        var itinerary = await context.Itineraries
+            .Include(i => i.Activities)
+            .FirstOrDefaultAsync(i => i.Id == id);
+
+        if (itinerary != null)
+        {
+            itinerary.ImageUrl = imageUrl;
             await context.SaveChangesAsync();
         }
     }

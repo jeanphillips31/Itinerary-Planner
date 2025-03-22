@@ -23,7 +23,29 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
             Location = a.Location
         });
     }
-    
+
+    /// <summary>
+    ///  Adds a new activity to the database
+    /// </summary>
+    public async Task<int> AddActivityAsync(ActivityDto activityDto, int itineraryId)
+    {
+        var activity = new Activity
+        {
+            Name = activityDto.Name,
+            Date = activityDto.Date,
+            EndTime = activityDto.EndTime,
+            StartTime = activityDto.StartTime,
+            Latitude = activityDto.Latitude,
+            Longitude = activityDto.Longitude,
+            Location = activityDto.Location,
+            ItineraryId = itineraryId
+        };
+
+        await activityRepository.AddActivityAsync(activity);
+
+        return activity.Id;
+    }
+
 
     /// <summary>
     ///  Updates existing activities, if it doesn't exist then add it

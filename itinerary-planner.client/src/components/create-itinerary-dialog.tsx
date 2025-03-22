@@ -6,16 +6,17 @@ import {Button} from "@/components/ui/button";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import {Calendar as CalendarComponent} from "@/components/ui/calendar"
 import {Calendar} from "lucide-react";
 import {addDays, format} from "date-fns"
-import { DateRange } from "react-day-picker"
+import {DateRange} from "react-day-picker"
 import {client, ItineraryDto} from "../../api/api";
 
-export default function CreateItineraryDialog() {
+export default function CreateItineraryDialog({ onAddItinerary }) {
     const [isOpen, setIsOpen] = useState(false)
     const [itineraryName, setItineraryName] = useState("")
-    const [selectedImage, setSelectedImage] = useState<string | null>(null)
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: new Date(),
         to: addDays(new Date(), 2),
@@ -24,29 +25,58 @@ export default function CreateItineraryDialog() {
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
         if (file) {
-            const reader = new FileReader()
+            setSelectedImage(file)
+
+            const reader = new FileReader();
             reader.onloadend = () => {
-                setSelectedImage(reader.result as string)
-            }
-            reader.readAsDataURL(file)
+                setImagePreviewUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // If no file selected, reset both states
+            setSelectedImage(null);
+            setImagePreviewUrl(null);
         }
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        //e.preventDefault()
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
         //handle form submission
-        let itinerary: ItineraryDto = {
-            title: itineraryName,
-            imageUrl: selectedImage,
-            startDate: dateRange?.from?.toDateString(),
-            endDate: dateRange?.to?.toDateString(),
-            userId: 1
+        try {
+            let uploadedImageUrl = ""
+            if(selectedImage)
+            {
+                const formData = new FormData()
+                formData.append('file', selectedImage || "");
+                const response = await fetch("https://localhost:7063/upload-image", {
+                    method: "POST",
+                    body: formData,
+                })
+                if (response.ok) {
+                    const data = await response.json()
+                    uploadedImageUrl = data
+                }
+            }
+            let itinerary: ItineraryDto = {
+                title: itineraryName,
+                startDate: dateRange?.from?.toISOString(),
+                endDate: dateRange?.to?.toISOString(),
+                userId: 1,
+                imageUrl: uploadedImageUrl
+            }
+            itinerary.id = await client.postAdd(itinerary);
+            onAddItinerary(itinerary)
+        } catch(error)
+        {
+            console.error(error)
         }
-        client.postAdd(itinerary)
-            .catch(error => console.log(error))
         setItineraryName("")
         setSelectedImage(null)
-        setDateRange(undefined)
+        setImagePreviewUrl(null);
+        setDateRange({
+            from: new Date(),
+            to: addDays(new Date(), 2),
+        })
         setIsOpen(false)
     }
 
@@ -75,10 +105,10 @@ export default function CreateItineraryDialog() {
                     <div className="space-y-2">
                         <Label htmlFor="image">Select Display Image</Label>
                         <Input id="image" type="file" accept="image/*" onChange={handleImageChange} className="file:mr-4" />
-                        { selectedImage && (
+                        { imagePreviewUrl && (
                             <div className="mt-2">
                                 <img
-                                src={selectedImage}
+                                src={imagePreviewUrl}
                                 alt={"Selected Image"}
                                 className={"max-w-full rounded-md h-auto"}/>
                             </div>

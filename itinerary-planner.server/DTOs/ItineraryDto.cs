@@ -4,6 +4,7 @@ public class ItineraryDto
 {
     public int Id { get; set; }
     public required string Title { get; set; }
+    public IFormFile? Image { get; set; }
     public string? ImageUrl { get; set; }
     public DateTimeOffset StartDate { get; set; }
     public DateTimeOffset EndDate { get; set; }

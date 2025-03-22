@@ -23,7 +23,7 @@ public class ActivityRepository(ApplicationDbContext context) : IActivityReposit
     }
 
     /// <summary>
-    ///  Adds a new activity to the database
+    ///  Adds new activities to the database
     /// </summary>
     public async Task AddActivitiesAsync(IEnumerable<Activity> activities)
     {
@@ -31,6 +31,15 @@ public class ActivityRepository(ApplicationDbContext context) : IActivityReposit
         {
             await context.Activities.AddAsync(activity);
         }
+        await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Adds a new activity to the database
+    /// </summary>
+    public async Task AddActivityAsync(Activity activity)
+    {
+        await context.Activities.AddAsync(activity);
         await context.SaveChangesAsync();
     }
 

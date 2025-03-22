@@ -9,8 +9,9 @@ import { Command as CommandPrimitive } from "cmdk";
 import {Button} from "@/components/ui/button";
 import {TimePicker} from "@/components/time-picker/timer-picker";
 import {Input} from "@/components/ui/input";
+import {ActivityDto, client} from "../../api/api";
 
-export default function AddItemDialog() {
+export default function AddItemDialog({ onAddActivity, itineraryId }) {
     const provider = new OpenStreetMapProvider();
     const [addressSearchIsOpen, setAddressSearchIsOpen] = useState(false);
     const [searchResults, setResults] = useState([])
@@ -25,6 +26,17 @@ export default function AddItemDialog() {
     const handleSubmit = async (e) => {
         e.preventDefault()
         //handle form submission
+
+        try {
+            let activity:ActivityDto = {
+                name: ""
+            }
+            await client.postAddActivity(activity, itineraryId);
+
+        } catch(error)
+        {
+            console.error(error)
+        }
         setResults([])
         setLocation([])
         setLocationText("")

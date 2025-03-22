@@ -9,4 +9,5 @@ public interface IItineraryRepository
     Task AddItineraryAsync(Itinerary itinerary);
     Task UpdateItineraryAsync(Itinerary itinerary);
     Task DeleteItineraryAsync(int id);
+    Task UpdateItineraryImageAsync(int id, string imageUrl);
 }

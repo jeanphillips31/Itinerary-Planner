@@ -2,6 +2,7 @@
 using itinerary_planner.server.DTOs;
 using itinerary_planner.server.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace itinerary_planner.server.Controllers;
 
@@ -14,6 +15,7 @@ public class ItineraryModule : ICarterModule
         app.MapPost("/add", AddItinerary);
         app.MapPut("/update/{itineraryId:int}", UpdateItinerary);
         app.MapDelete("/delete/{itineraryId:int}", DeleteItinerary);
+        app.MapPost("/upload-image", UploadImageAsync).DisableAntiforgery();
     }
 
     private async Task<Results<Ok<IEnumerable<ItineraryDto>>, BadRequest>> GetItineraries(IItineraryService itineraryService)
@@ -69,5 +71,15 @@ public class ItineraryModule : ICarterModule
         {
             return TypedResults.NotFound();
         }
+    }
+
+    private async Task<Results<Ok<string>, BadRequest>> UploadImageAsync(IItineraryService itineraryService, [FromForm] IFormFile file)
+    {
+        var result = await itineraryService.UploadImageAsync(file);
+        if (!result.isSuccess)
+        {
+            return TypedResults.BadRequest();
+        }
+        return TypedResults.Ok(result.url);
     }
 }

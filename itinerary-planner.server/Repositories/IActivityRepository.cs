@@ -7,6 +7,7 @@ public interface IActivityRepository
     Task<IEnumerable<Activity>> GetActivitiesByItineraryId(int id);
     Task<Activity?> GetActivityByIdAsync(int activityId);
     Task AddActivitiesAsync(IEnumerable<Activity> activities);
+    Task AddActivityAsync(Activity activity);
     Task UpdateActivityAsync(Activity activity);
     Task DeleteActivityAsync(int id);
     Task DeleteActivitiesByItineraryIdAsync(int itineraryId);

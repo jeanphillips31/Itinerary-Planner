@@ -6,12 +6,14 @@ import Link from "next/link";
 import {ItineraryDto} from "../../api/api";
 
 export default function Itinerary({ props }: { props: ItineraryDto }) {
+    console.log("props", props);
     return (
         <Link href={"/itineraries/edit/" + props.id} passHref>
             <Card className="overflow-hidden cursor-pointer">
                 <CardHeader className="p-0">
                     <div className="relative h-48">
                         <Image
+                            unoptimized={true}
                             src={props.imageUrl || ""}
                             alt={props.title || ""}
                             layout="fill"

@@ -17,6 +17,7 @@ const ItineraryDto = z
   .object({
     id: z.number().int(),
     title: z.string().nullable(),
+    image: z.instanceof(File).nullable(),
     imageUrl: z.string().nullable(),
     startDate: z.string().datetime({ offset: true }),
     endDate: z.string().datetime({ offset: true }),
@@ -41,6 +42,32 @@ const endpoints = makeApi([
         name: "body",
         type: "Body",
         schema: ItineraryDto,
+      },
+    ],
+    response: z.number().int(),
+    errors: [
+      {
+        status: 400,
+        description: `Bad Request`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/addActivity",
+    alias: "postAddActivity",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: ActivityDto,
+      },
+      {
+        name: "itineraryId",
+        type: "Query",
+        schema: z.number().int(),
       },
     ],
     response: z.number().int(),
@@ -130,6 +157,27 @@ const endpoints = makeApi([
       {
         status: 404,
         description: `Not Found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
+    method: "post",
+    path: "/upload-image",
+    alias: "postUploadImage",
+    requestFormat: "form-data",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: z.object({ file: z.instanceof(File) }).passthrough(),
+      },
+    ],
+    response: z.string(),
+    errors: [
+      {
+        status: 400,
+        description: `Bad Request`,
         schema: z.void(),
       },
     ],
