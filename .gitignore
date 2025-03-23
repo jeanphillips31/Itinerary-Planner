@@ -37,6 +37,8 @@ next-env.d.ts
 
 **/input/
 
+**/uploads/*
+!**/uploads/.gitkeep
 
 # Common IntelliJ Platform excludes
 

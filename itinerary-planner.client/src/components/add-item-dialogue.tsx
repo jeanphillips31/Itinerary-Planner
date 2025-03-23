@@ -10,8 +10,9 @@ import {Button} from "@/components/ui/button";
 import {TimePicker} from "@/components/time-picker/timer-picker";
 import {Input} from "@/components/ui/input";
 import {ActivityDto, client} from "../../api/api";
+import {z} from "zod";
 
-export default function AddItemDialog({ onAddActivity, itineraryId }) {
+export default function AddItemDialog({ onAddActivity, itineraryId, activityDate }) {
     const provider = new OpenStreetMapProvider();
     const [addressSearchIsOpen, setAddressSearchIsOpen] = useState(false);
     const [searchResults, setResults] = useState([])
@@ -29,9 +30,16 @@ export default function AddItemDialog({ onAddActivity, itineraryId }) {
 
         try {
             let activity:ActivityDto = {
-                name: ""
+                name: activityTitle,
+                date: activityDate.toISOString(),
+                location: locationText,
+                latitude: location.y,
+                longitude: location.x,
+                startTime: startTime?.toISOString(),
+                endTime: endTime?.toISOString()
             }
-            await client.postAddActivity(activity, itineraryId);
+            activity.id = await client.postAddActivity(activity, {queries: {itineraryId: itineraryId}});
+            onAddActivity(activity);
 
         } catch(error)
         {

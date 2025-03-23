@@ -13,7 +13,6 @@ import {useTheme} from "next-themes";
 import AddItemDialog from "@/components/add-item-dialogue";
 import {ActivityDto, ItineraryDto} from "../../../../../api/api";
 import {createApiClient} from "../../../../../api/client";
-import Image from "next/image";
 
 export default function EditItinerary() {
     let baseUrl = ""
@@ -70,7 +69,9 @@ export default function EditItinerary() {
             allDates.forEach((date) => {
                 const formattedDate = format(date, 'yyyy-MM-dd');
                 // @ts-ignore
-                const activities:ActivityDto[] = itinerary.activities?.[formattedDate] || [];
+                const activities:ActivityDto[] = itinerary.activities?.filter((activity) => {
+                    return format(activity.date, "yyyy-MM-dd") === formattedDate
+                }) || [];
                 if (activities.length > 0) {
                     // @ts-ignore
                     initialSelectedActivities[formattedDate] = activities[0];
@@ -104,6 +105,7 @@ export default function EditItinerary() {
     });
 
     const addActivity = (newActivity: ActivityDto) => {
+        // @ts-ignore
         itinerary.activities.push(newActivity);
     }
 
@@ -126,7 +128,9 @@ export default function EditItinerary() {
                 {allDates.map((date) => {
                     const formattedDate = format(date, 'yyyy-MM-dd');
                     // @ts-ignore
-                    const activities = itinerary.activities?.[formattedDate] || [];
+                    const activities:ActivityDto[] = itinerary.activities?.filter((activity) => {
+                        return format(activity.date, "yyyy-MM-dd") === formattedDate
+                    }) || [];
                     // @ts-ignore
                     const selectedActivity = selectedActivities[formattedDate];
                     // @ts-ignore
@@ -140,7 +144,7 @@ export default function EditItinerary() {
                                         <div className="relative grid grid-cols-2 justify-between">
                                             <h3 className="text-2xl">{format(date, 'MMM d, yyyy')}</h3>
                                             <div className="flex justify-end w-full">
-                                                <AddItemDialog onAddActivity={addActivity}/>
+                                                <AddItemDialog onAddActivity={addActivity} itineraryId={itinerary.id} activityDate={date} />
                                             </div>
                                         </div>
                                     </CardHeader>
