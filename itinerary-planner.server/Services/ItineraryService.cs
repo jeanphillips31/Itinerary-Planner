@@ -1,4 +1,5 @@
-﻿using itinerary_planner.server.DTOs;
+﻿using System.Text.RegularExpressions;
+using itinerary_planner.server.DTOs;
 using itinerary_planner.server.Models;
 using itinerary_planner.server.Repositories;
 
@@ -73,6 +74,14 @@ public class ItineraryService(IItineraryRepository itineraryRepository) : IItine
     /// </summary>
     public async Task<int> AddItineraryAsync(ItineraryDto itineraryDto)
     {
+        // Remove the domain from the url, we only want everything after uploads/
+        const string pattern = "(uploads.*)";
+        var match = Regex.Match(itineraryDto.ImageUrl, pattern);
+        if (match.Success)
+        {
+            itineraryDto.ImageUrl = match.Groups[1].Value;
+        }
+        
         var itinerary = new Itinerary
         {
             StartDate = itineraryDto.StartDate,

@@ -6,7 +6,6 @@ import Link from "next/link";
 import {ItineraryDto} from "../../api/api";
 
 export default function Itinerary({ props }: { props: ItineraryDto }) {
-    console.log("props", props);
     return (
         <Link href={"/itineraries/edit/" + props.id} passHref>
             <Card className="overflow-hidden cursor-pointer">

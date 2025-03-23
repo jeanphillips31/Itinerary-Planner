@@ -105,8 +105,9 @@ export default function EditItinerary() {
     });
 
     const addActivity = (newActivity: ActivityDto) => {
-        // @ts-ignore
-        itinerary.activities.push(newActivity);
+        setItinerary(prevItinerary => ({
+            ...prevItinerary,
+            activities: [...prevItinerary.activities, newActivity]}));
     }
 
     return (
