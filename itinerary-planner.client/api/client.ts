@@ -162,6 +162,32 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "put",
+    path: "/updateActivity/:activityId",
+    alias: "putUpdateActivityActivityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "body",
+        type: "Body",
+        schema: ActivityDto,
+      },
+      {
+        name: "activityId",
+        type: "Path",
+        schema: z.number().int(),
+      },
+    ],
+    response: z.void(),
+    errors: [
+      {
+        status: 404,
+        description: `Not Found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
     method: "post",
     path: "/upload-image",
     alias: "postUploadImage",

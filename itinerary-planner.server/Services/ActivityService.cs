@@ -93,6 +93,21 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
     }
 
     /// <summary>
+    /// Updates a single activity
+    /// </summary>
+    public async Task UpdateActivityAsync(ActivityDto activityDto)
+    {
+        var activity = await activityRepository.GetActivityByIdAsync(activityDto.Id);
+
+        if (activity == null)
+        {
+            throw new ArgumentException($"No activity found with id: {activityDto.Id}");
+        }
+        
+        await activityRepository.UpdateActivityAsync(activity);
+    }
+
+    /// <summary>
     ///  Soft deletes a singular activity
     /// </summary>
     public async Task DeleteActivityAsync(int id)

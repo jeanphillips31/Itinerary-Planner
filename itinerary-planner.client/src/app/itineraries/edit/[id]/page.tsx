@@ -13,6 +13,8 @@ import {useTheme} from "next-themes";
 import AddItemDialog from "@/components/add-item-dialogue";
 import {ActivityDto, ItineraryDto} from "../../../../../api/api";
 import {createApiClient} from "../../../../../api/client";
+import {Button} from "@/components/ui/button";
+import {MdDelete, MdEdit} from "react-icons/md";
 
 export default function EditItinerary() {
     let baseUrl = ""
@@ -110,6 +112,18 @@ export default function EditItinerary() {
             activities: [...prevItinerary.activities, newActivity]}));
     }
 
+    const updateActivity = (updatedActivity: ActivityDto) => {
+        const updatedActivities = itinerary.activities?.map((activity) => {
+            if (activity.id === updatedActivity.id) {
+                return {...activity, ...updatedActivity};
+            }
+            return activity
+        })
+        setItinerary(prevItinerary => ({
+            ...prevItinerary,
+            activities: updatedActivities}));
+    }
+
     return (
         <div className="grid min-h-screen gap-16 sm:p-20">
             <div className="flex items-center justify-between">
@@ -145,7 +159,12 @@ export default function EditItinerary() {
                                         <div className="relative grid grid-cols-2 justify-between">
                                             <h3 className="text-2xl">{format(date, 'MMM d, yyyy')}</h3>
                                             <div className="flex justify-end w-full">
-                                                <AddItemDialog onAddActivity={addActivity} itineraryId={itinerary.id} activityDate={date} />
+                                                <AddItemDialog onAddActivity={addActivity}
+                                                               itineraryId={itinerary.id}
+                                                               activityDate={date}
+                                                               activityDto={null}
+                                                               onUpdateActivity={updateActivity}
+                                                               triggerButton={<Button variant="outline" className="px-2 py-1 text-sm w-20">Add Item</Button>}/>
                                             </div>
                                         </div>
                                     </CardHeader>
@@ -158,9 +177,33 @@ export default function EditItinerary() {
                                                     <Card key={"activity"+activity.id}
                                                           className={`p-5 m-2 cursor-pointer ${isSelected ? `${theme === "light" ? "bg-gray-200" : "bg-gray-700" }` : ""}`}
                                                           onClick={() => handleActivityClick(formattedDate, activity)}>
-                                                        <h4 className="font-bold">{activity.name}</h4>
-                                                        <p className="text-sm">{format(activity.startTime || "", "HH:mm") + "-" + format(activity.endTime || "", "HH:mm")}</p>
-                                                        <p>{activity.location}</p>
+                                                        <div className={"flex flex-row justify-between"}>
+                                                            <div>
+                                                                <h4 className="font-bold">{activity.name}</h4>
+                                                                <p className="text-sm">{format(activity.startTime || "", "HH:mm") + "-" + format(activity.endTime || "", "HH:mm")}</p>
+                                                                <p>{activity.location}</p>
+                                                            </div>
+                                                            <div>
+                                                                <AddItemDialog onAddActivity={addActivity}
+                                                                               itineraryId={itinerary.id}
+                                                                               activityDate={date}
+                                                                               activityDto={activity}
+                                                                               onUpdateActivity={updateActivity}
+                                                                               triggerButton={
+                                                                                <Button
+                                                                                   className={"mr-2"}
+                                                                                   variant={"outline"}
+                                                                                   size={"icon"}>
+                                                                                   <MdEdit/>
+                                                                                </Button>}/>
+                                                                <Button
+                                                                    variant={"outline"}
+                                                                    size={"icon"}>
+                                                                    <MdDelete/>
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+
                                                     </Card>
                                                 )
                                             })

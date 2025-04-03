@@ -2,7 +2,7 @@
 
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {Label} from "@/components/ui/label";
-import {useCallback, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {OpenStreetMapProvider} from "leaflet-geosearch"
 import {Command, CommandEmpty, CommandGroup, CommandList} from "@/components/ui/command";
 import { Command as CommandPrimitive } from "cmdk";
@@ -10,9 +10,18 @@ import {Button} from "@/components/ui/button";
 import {TimePicker} from "@/components/time-picker/timer-picker";
 import {Input} from "@/components/ui/input";
 import {ActivityDto, client} from "../../api/api";
-import {z} from "zod";
+import {parseISO} from "date-fns";
 
-export default function AddItemDialog({ onAddActivity, itineraryId, activityDate }) {
+type Props = {
+    onAddActivity: (activity: ActivityDto) => void;
+    onUpdateActivity: (activity: ActivityDto) => void;
+    itineraryId: number | undefined;
+    activityDate: Date;
+    activityDto: ActivityDto | null;
+    triggerButton: React.ReactNode;
+}
+
+export default function AddItemDialog(props:Props) {
     const provider = new OpenStreetMapProvider();
     const [addressSearchIsOpen, setAddressSearchIsOpen] = useState(false);
     const [searchResults, setResults] = useState([])
@@ -31,15 +40,28 @@ export default function AddItemDialog({ onAddActivity, itineraryId, activityDate
         try {
             let activity:ActivityDto = {
                 name: activityTitle,
-                date: activityDate.toISOString(),
+                date: props.activityDate.toISOString(),
                 location: locationText,
                 latitude: location.y,
                 longitude: location.x,
                 startTime: startTime?.toISOString(),
                 endTime: endTime?.toISOString()
             }
-            activity.id = await client.postAddActivity(activity, {queries: {itineraryId: itineraryId}});
-            onAddActivity(activity);
+
+            if(props.activityDto == null){
+                // new activity
+                activity.id = await client.postAddActivity(activity, {queries: {itineraryId: props.itineraryId}});
+                props.onAddActivity(activity);
+            }
+            else {
+                // updating activity
+                if(location == null){
+                    activity.latitude = props.activityDto.latitude;
+                    activity.longitude = props.activityDto.longitude;
+                }
+                await client.putUpdateActivityActivityId(activity, {params: {activityId: props.activityDto.id}})
+            }
+
 
         } catch(error)
         {
@@ -78,10 +100,19 @@ export default function AddItemDialog({ onAddActivity, itineraryId, activityDate
     const open = useCallback(() => setAddressSearchIsOpen(true), []);
     const close = useCallback(() => setAddressSearchIsOpen(false), []);
 
+    useEffect(() => {
+        if (props.activityDto != null) {
+            setLocationText(props.activityDto.location || "")
+            setStartTime(parseISO(props.activityDto.startTime))
+            setEndTime(parseISO(props.activityDto.endTime))
+            setActivityTitle(props.activityDto.name || "")
+        }
+    }, [props.activityDto])
+
     return(
         <Dialog open={dialogIsOpen} onOpenChange={setDialogIsOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" className="px-2 py-1 text-sm w-20">Add Item</Button>
+                {props.triggerButton}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

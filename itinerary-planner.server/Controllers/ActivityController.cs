@@ -10,6 +10,7 @@ public class ActivityModule : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapPost("/addActivity", AddActivity);
+        app.MapPut("/updateActivity/{activityId:int}", UpdateActivity);
     }
 
     private async Task<Results<Created<int>, BadRequest>> AddActivity(IActivityService activityService,
@@ -17,5 +18,18 @@ public class ActivityModule : ICarterModule
     {
         var id = await activityService.AddActivityAsync(activityDto, itineraryId);
         return TypedResults.Created(nameof(AddActivity), id);
+    }
+
+    private async Task<Results<Ok, NotFound, NoContent>> UpdateActivity(IActivityService activityService, int activityId, ActivityDto activityDto)
+    {
+        try
+        {
+            await activityService.UpdateActivityAsync(activityDto);
+            return TypedResults.NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return TypedResults.NotFound();
+        }
     }
 }
