@@ -55,11 +55,13 @@ export default function AddItemDialog(props:Props) {
             }
             else {
                 // updating activity
-                if(location == null){
+                if(Object.keys(location).length === 0){
                     activity.latitude = props.activityDto.latitude;
                     activity.longitude = props.activityDto.longitude;
                 }
                 await client.putUpdateActivityActivityId(activity, {params: {activityId: props.activityDto.id}})
+                activity.id = props.activityDto.id;
+                props.onUpdateActivity(activity);
             }
 
 
@@ -116,7 +118,7 @@ export default function AddItemDialog(props:Props) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Add Activity</DialogTitle>
+                    <DialogTitle>{props.activityDto == null ? "Add Activity" : "Edit Activity"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -192,7 +194,7 @@ export default function AddItemDialog(props:Props) {
                         <Button type="button" variant="outline" onClick={() => setDialogIsOpen(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit">Create Activity</Button>
+                        <Button type="submit">{props.activityDto == null ? "Create Activity" : "Update Activity"}</Button>
                     </div>
                 </form>
             </DialogContent>

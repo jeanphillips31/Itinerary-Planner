@@ -95,14 +95,22 @@ public class ActivityService(IActivityRepository activityRepository) : IActivity
     /// <summary>
     /// Updates a single activity
     /// </summary>
-    public async Task UpdateActivityAsync(ActivityDto activityDto)
+    public async Task UpdateActivityAsync(ActivityDto activityDto, int activityId)
     {
-        var activity = await activityRepository.GetActivityByIdAsync(activityDto.Id);
+        var activity = await activityRepository.GetActivityByIdAsync(activityId);
 
         if (activity == null)
         {
-            throw new ArgumentException($"No activity found with id: {activityDto.Id}");
+            throw new ArgumentException($"No activity found with id: {activityId}");
         }
+        
+        activity.Name = activityDto.Name;
+        activity.Date = activityDto.Date;
+        activity.EndTime = activityDto.EndTime;
+        activity.StartTime = activityDto.StartTime;
+        activity.Latitude = activityDto.Latitude;
+        activity.Longitude = activityDto.Longitude;
+        activity.Location = activityDto.Location;
         
         await activityRepository.UpdateActivityAsync(activity);
     }

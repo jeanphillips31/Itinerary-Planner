@@ -101,6 +101,27 @@ const endpoints = makeApi([
     ],
   },
   {
+    method: "delete",
+    path: "/deleteActivity:activityId",
+    alias: "deleteDeleteActivityActivityId",
+    requestFormat: "json",
+    parameters: [
+      {
+        name: "activityId",
+        type: "Path",
+        schema: z.number().int(),
+      },
+    ],
+    response: z.void(),
+    errors: [
+      {
+        status: 404,
+        description: `Not Found`,
+        schema: z.void(),
+      },
+    ],
+  },
+  {
     method: "get",
     path: "/itineraries",
     alias: "getItineraries",

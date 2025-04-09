@@ -41,6 +41,14 @@ export default function EditItinerary() {
             } }));
     };
 
+    const handleActivityDelete = async (date:string, activity:ActivityDto) => {
+        await client.deleteDeleteActivityActivityId(undefined, {params: {activityId: activity.id}})
+        setItinerary(prevItinerary => ({
+            ...prevItinerary,
+            activities: prevItinerary.activities.filter(a => a.id !== activity.id)
+        }))
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -51,6 +59,7 @@ export default function EditItinerary() {
                     }
                     const response: ItineraryDto = await client.getItineraryItineraryId({params: {itineraryId:itineraryId }});
                     setItinerary(response);
+                    console.log(response);
                 }
             } catch(error) {
                 console.log(error)
@@ -197,6 +206,7 @@ export default function EditItinerary() {
                                                                                    <MdEdit/>
                                                                                 </Button>}/>
                                                                 <Button
+                                                                    onClick={() => handleActivityDelete(formattedDate, activity)}
                                                                     variant={"outline"}
                                                                     size={"icon"}>
                                                                     <MdDelete/>

@@ -11,6 +11,7 @@ public class ActivityModule : ICarterModule
     {
         app.MapPost("/addActivity", AddActivity);
         app.MapPut("/updateActivity/{activityId:int}", UpdateActivity);
+        app.MapDelete("/deleteActivity{activityId:int}", DeleteActivity);
     }
 
     private async Task<Results<Created<int>, BadRequest>> AddActivity(IActivityService activityService,
@@ -24,8 +25,23 @@ public class ActivityModule : ICarterModule
     {
         try
         {
-            await activityService.UpdateActivityAsync(activityDto);
+            await activityService.UpdateActivityAsync(activityDto, activityId);
             return TypedResults.NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    private async Task<Results<Ok, NotFound, NoContent>> DeleteActivity(IActivityService activityService,
+        int activityId)
+    {
+        try
+        {
+            await activityService.DeleteActivityAsync(activityId);
+            return TypedResults.NoContent();
+
         }
         catch (KeyNotFoundException)
         {
